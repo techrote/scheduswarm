@@ -135,7 +135,7 @@ async function snapshotRepository(rcfg) {
     const file = await getContent(rcfg.repository, entry.path, queue);
     const parsed = parseJsonFrontmatter(file.text);
     validateTask(parsed.metadata, rcfg.repository);
-    tasks.push({metadata:parsed.metadata,prompt:parsed.prompt,blobSha:file.sha,path:entry.path});
+    tasks.push({metadata:parsed.metadata,prompt:parsed.prompt,rawText:file.text,blobSha:file.sha,path:entry.path});
   }
 
   const superseded = new Set(tasks.map(x=>x.metadata.supersedes_task_id).filter(Boolean));
