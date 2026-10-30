@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/techrote/scheduswarm/schemas/completion.schema.json",
+  "title": "Scheduswarm v2 worker completion",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "task_id",
+    "completed_at",
+    "outcome",
+    "project_refs",
+    "successor_task_ids",
+    "stop_reason"
+  ],
+  "properties": {
+    "schema": {
+      "const": "scheduswarm/completion-v2"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "outcome": {
+      "enum": [
+        "completed",
+        "partial",
+        "blocked",
+        "failed",
+        "superseded"
+      ]
+    },
+    "project_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 50
+    },
+    "successor_task_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 1
+    },
+    "spawned_parallel_task_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 10
+    },
+    "stop_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}
