@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/techrote/scheduswarm/schemas/task-envelope.schema.json",
+  "title": "Scheduswarm v2 task metadata",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "task_id",
+    "project",
+    "repository",
+    "lane",
+    "created_at",
+    "priority",
+    "queue_branch",
+    "chatgpt",
+    "coordination"
+  ],
+  "properties": {
+    "schema": {
+      "const": "scheduswarm/task-v2"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "lane": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "parent_task_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+    },
+    "supersedes_task_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "not_before": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "priority": {
+      "enum": [
+        "critical",
+        "high",
+        "normal",
+        "background"
+      ]
+    },
+    "queue_branch": {
+      "const": "scheduswarm/queue"
+    },
+    "chatgpt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_label",
+        "effort_label",
+        "dispatch_mode",
+        "require_new_chat"
+      ],
+      "properties": {
+        "model_label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "effort_label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "dispatch_mode": {
+          "enum": [
+            "confirm",
+            "automatic"
+          ]
+        },
+        "require_new_chat": {
+          "const": true
+        }
+      }
+    },
+    "coordination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy_path",
+        "max_successors"
+      ],
+      "properties": {
+        "policy_path": {
+          "const": "SCHEDUSWARM.md"
+        },
+        "ledger_issue": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "max_successors": {
+          "const": 1
+        }
+      }
+    }
+  }
+}
