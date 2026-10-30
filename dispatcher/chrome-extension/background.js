@@ -48,7 +48,8 @@ async function github(path, options={}) {
   const cfg = await config();
   const headers = {
     "Accept": "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",\n    "Content-Type": "application/json",
+    "X-GitHub-Api-Version": "2022-11-28",
+    "Content-Type": "application/json",
     ...(options.headers || {})
   };
   if (cfg.githubToken) headers.Authorization = "Bearer " + cfg.githubToken;
