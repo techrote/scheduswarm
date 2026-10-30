@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Scheduswarm Dispatcher",
+  "version": "0.1.0",
+  "description": "Dispatch repository-backed Scheduswarm task envelopes into new ChatGPT chats.",
+  "permissions": ["storage", "tabs", "alarms", "notifications"],
+  "host_permissions": [
+    "https://api.github.com/*",
+    "https://chatgpt.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "options.html",
+  "action": {
+    "default_title": "Scheduswarm Dispatcher"
+  }
+}
