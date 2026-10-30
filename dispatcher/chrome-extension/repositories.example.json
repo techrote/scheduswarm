@@ -1,0 +1,14 @@
+[
+  {
+    "repository": "techrote/radiCADSAC",
+    "policyRef": "main",
+    "queueBranch": "scheduswarm/queue",
+    "dispatcherId": "workstation-main"
+  },
+  {
+    "repository": "techrote/neurounner",
+    "policyRef": "main",
+    "queueBranch": "scheduswarm/queue",
+    "dispatcherId": "workstation-main"
+  }
+]
