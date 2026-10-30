@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/techrote/scheduswarm/schemas/claim.schema.json",
+  "title": "Scheduswarm v2 dispatch claim",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "task_id",
+    "attempt",
+    "dispatcher_id",
+    "dispatcher_version",
+    "claimed_at",
+    "task_blob_sha",
+    "task_content_sha256"
+  ],
+  "properties": {
+    "schema": {
+      "const": "scheduswarm/claim-v2"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "dispatcher_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dispatcher_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "claimed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "task_blob_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "task_content_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

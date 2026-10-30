@@ -1,0 +1,25 @@
+name: Scheduswarm v2 validation
+on:
+  push:
+    branches: [main, "v2/**"]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: JavaScript syntax
+        run: |
+          node --check dispatcher/chrome-extension/task.js
+          node --check dispatcher/chrome-extension/background.js
+          node --check dispatcher/chrome-extension/content.js
+          node --check dispatcher/chrome-extension/options.js
+          node --check tests/task-parser.mjs
+      - name: Parser and configuration tests
+        run: npm test
