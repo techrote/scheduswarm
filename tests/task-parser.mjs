@@ -17,6 +17,9 @@ assert.equal(priorityRank("background"),3);
 assert.throws(()=>validateTask({...parsed.metadata,queue_branch:"main"},"owner/repository"),/TASK_REFUSED/);
 assert.throws(()=>validateTask({...parsed.metadata,repository:"other/repo"},"owner/repository"),/TASK_REFUSED/);
 assert.throws(()=>parseJsonFrontmatter("no-frontmatter"),/TASK_REFUSED/);
+const crlf=parseJsonFrontmatter(task.replace(/\n/g,"\r\n"));
+assert.equal(crlf.metadata.task_id,parsed.metadata.task_id);
+assert.match(crlf.prompt,/Current objective/);
 
 const policy = `# Policy
 

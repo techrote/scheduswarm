@@ -1,16 +1,13 @@
 export const DISPATCHER_VERSION = "0.1.0";
 
 export function parseJsonFrontmatter(markdown) {
-  if (typeof markdown !== "string" || !markdown.startsWith("---\n")) {
-    throw new Error("TASK_REFUSED: missing JSON frontmatter opener");
-  }
-  const end = markdown.indexOf("\n---\n", 4);
-  if (end < 0) throw new Error("TASK_REFUSED: missing JSON frontmatter closer");
-  const raw = markdown.slice(4, end).trim();
+  if (typeof markdown !== "string") throw new Error("TASK_REFUSED: task must be text");
+  const match = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
+  if (!match) throw new Error("TASK_REFUSED: missing or malformed JSON frontmatter");
   let metadata;
-  try { metadata = JSON.parse(raw); }
+  try { metadata = JSON.parse(match[1].trim()); }
   catch (error) { throw new Error("TASK_REFUSED: invalid JSON frontmatter: " + error.message); }
-  const prompt = markdown.slice(end + 5);
+  const prompt = markdown.slice(match[0].length);
   if (!prompt.trim()) throw new Error("TASK_REFUSED: empty prompt body");
   return { metadata, prompt };
 }

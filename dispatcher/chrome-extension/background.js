@@ -49,6 +49,7 @@ async function github(path, options={}) {
   const headers = {
     "Accept": "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
+    "Content-Type": "application/json",
     ...(options.headers || {})
   };
   if (cfg.githubToken) headers.Authorization = "Bearer " + cfg.githubToken;
@@ -331,6 +332,22 @@ chrome.runtime.onMessage.addListener((message,sender,sendResponse)=>{
         chatUrl:message.chatUrl,
         verifiedModel:item.ctx.task.metadata.chatgpt.model_label,
         verifiedEffort:item.ctx.task.metadata.chatgpt.effort_label
+      });
+      delete pending[message.dispatchToken];
+      await chrome.storage.local.set({pendingConfirmations:pending});
+    })().then(()=>sendResponse({ok:true})).catch(e=>sendResponse({ok:false,error:String(e)}));
+    return true;
+  }
+  if (message && message.type === "scheduswarm.confirmAmbiguous") {
+    (async()=>{
+      const stored = await chrome.storage.local.get(["pendingConfirmations"]);
+      const pending = stored.pendingConfirmations || {};
+      const item = pending[message.dispatchToken];
+      if (!item) throw new Error("unknown confirmation token");
+      await writeReceipt(item.ctx,"failed",{
+        chatUrl:message.chatUrl,
+        failureStage:"post-submit-ambiguous",
+        error:"manual send clicked but submission could not be verified"
       });
       delete pending[message.dispatchToken];
       await chrome.storage.local.set({pendingConfirmations:pending});
