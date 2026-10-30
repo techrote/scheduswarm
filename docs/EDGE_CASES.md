@@ -83,3 +83,12 @@ Retry only when the failure is plausibly infrastructural or after a concrete sou
 ## Cross-project resource pressure
 
 Per-project concurrency budgets do not automatically enforce a global account budget. If several projects are active, stagger launches and prefer critical-path projects. A future global policy may add an account-wide cap.
+
+
+## Separate-chat isolation
+
+Scheduswarm's primary isolation mechanism is repository ownership (distinct lanes, branches, PRs and write sets), not an assumption that every scheduler API can force a different ChatGPT conversation root.
+
+If the scheduling surface exposes no destination-chat parameter, multiple automations created from one chat may remain associated with the same parent conversation even though they are independent scheduled jobs. Do not falsely claim chat-level isolation.
+
+When **separate visible chat roots are a hard requirement**, create each lane's automation from its intended chat (or another product surface that explicitly supports a destination thread). The repository coordination rules still apply either way.
