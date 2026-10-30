@@ -261,14 +261,7 @@ async function claimAndDispatch(snapshot, task, attempt, cfg) {
     const result = response.result;
     if (result.state === "submitted") await writeReceipt(ctx,"submitted",result);
     else if (result.state === "ambiguous") await writeReceipt(ctx,"failed",{...result,failureStage:"post-submit-ambiguous"});
-    else if (result.state === "prepared") {
-      await chrome.notifications.create({
-        type:"basic",
-        title:"Scheduswarm task prepared",
-        message:task.metadata.task_id + ": review and submit the prepared ChatGPT prompt.",
-        iconUrl:"icon128.png"
-      }).catch(()=>{});
-    }
+    else if (result.state === "prepared") { console.info("Scheduswarm task prepared", task.metadata.task_id); }
     return true;
   } catch (error) {
     await writeReceipt(ctx,"failed",{failureStage:"dispatcher",error:String(error && error.message || error)}).catch(()=>{});
