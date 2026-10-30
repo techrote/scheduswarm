@@ -1,5 +1,7 @@
 # Scheduswarm operating model
 
+> **Host compatibility (verified 30 Oct 2026):** ChatGPT scheduled-task executions currently receive `Automation creation is unavailable during an automation run.` from Automations `create`. Therefore **self-scheduled successor chains are not operational on that host**. The executor can still finish work and publish a checkpoint, but an external authorized scheduler or a normal chat must establish its successor. Treat scheduling as failed and stop if no supported coordinator is available. See [the documented incident](EDGE_CASES.md#chatgpt-task-execution-cannot-create-a-new-automation-observed-30-oct-2026).
+
 ## Purpose
 
 Scheduswarm coordinates multiple bounded one-shot task chains around a repository without turning them into an uncontrolled swarm of duplicate agents. It is designed for projects where:
