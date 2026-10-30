@@ -1,21 +1,21 @@
-# Scheduswarm adoption registry
+# Scheduswarm v2 adoption registry
 
-This registry links reusable Scheduswarm technique to project-local policy. The project-local file is authoritative for its limits and safety gates.
+This registry links the reusable v2 repository-queue/dispatcher protocol to project-local policy. The project-local `SCHEDUSWARM.md` is authoritative for limits and safety gates.
 
-| Project | Project policy | Coordination ledger | Initial state | Default limits |
+| Project | Project policy | Coordination ledger | Queue branch | Initial state |
 |---|---|---|---|---|
-| Neurounner | [adoption PR #214](https://github.com/techrote/neurounner/pull/214) | [issue #213](https://github.com/techrote/neurounner/issues/213) | active / pilot | 3 active lanes, concurrency 2 |
-| radiCADSAC | [adoption PR #325](https://github.com/techrote/radiCADSAC/pull/325) | [issue #324](https://github.com/techrote/radiCADSAC/issues/324) | active / migrating hourly loops | 3 active lanes, concurrency 2 |
-| CyberSand | [adoption PR #306](https://github.com/techrote/cybersand/pull/306) | [issue #305](https://github.com/techrote/cybersand/issues/305) | configured-paused | 3 active lanes, concurrency 2 |
+| Neurounner | [adoption PR #214](https://github.com/techrote/neurounner/pull/214) | [issue #213](https://github.com/techrote/neurounner/issues/213) | `scheduswarm/queue` | active / pilot |
+| radiCADSAC | [adoption PR #325](https://github.com/techrote/radiCADSAC/pull/325) | [issue #324](https://github.com/techrote/radiCADSAC/issues/324) | `scheduswarm/queue` | active / migrate to v2 queue |
+| CyberSand | [adoption PR #306](https://github.com/techrote/cybersand/pull/306) | [issue #305](https://github.com/techrote/cybersand/issues/305) | `scheduswarm/queue` | configured-paused |
 
-## Adoption rule
+## Activation rule
 
-A project is not active merely because it appears here. Its local `SCHEDUSWARM.md` status and explicit owner/project state control activation.
+Presence in this table is not activation. Project-local status controls whether the Chrome dispatcher may launch new tasks.
 
-When an adoption PR is merged, update the policy link to the main-branch file. Until then, scheduled pilot tasks must read the exact adoption PR/head and treat it as the requested policy checkpoint rather than assuming it is on main.
+## Queue provisioning
 
-## Why limits are two-dimensional
+Each participating repository should have a dedicated `scheduswarm/queue` branch with a `.scheduswarm/` directory. Routine task/claim/receipt/completion records are written there, not to product `main`.
 
-`max_active_lanes` controls how many independent successor chains the project can coordinate. `project_concurrency_budget` controls how many of those chains may execute/be intentionally launched at once.
+## Migration from v1
 
-A 3/2 project can keep three useful workstreams alive while reducing simultaneous branch, CI and integration pressure.
+Any project policy still instructing workers to create scheduled-task successors is stale and must be updated before v2 automatic dispatch. v1 history remains available in this repository's history branch and history document.
