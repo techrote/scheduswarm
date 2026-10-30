@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/techrote/scheduswarm/schemas/recovery.schema.json",
+  "title": "Scheduswarm v2 recovery record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "task_id",
+    "attempt",
+    "recorded_at",
+    "action",
+    "actor",
+    "reason"
+  ],
+  "properties": {
+    "schema": {
+      "const": "scheduswarm/recovery-v2"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "action": {
+      "enum": [
+        "submission_not_observed",
+        "submission_confirmed",
+        "abandon"
+      ]
+    },
+    "actor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
