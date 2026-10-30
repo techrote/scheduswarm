@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Scheduswarm Dispatcher Options</title>
+<style>
+body{font:14px system-ui;max-width:900px;margin:32px auto;padding:0 16px}label{display:block;margin:12px 0 4px}input,textarea{width:100%;box-sizing:border-box;padding:8px}textarea{min-height:180px;font-family:monospace}button{margin:16px 8px 0 0;padding:8px 14px}.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}.status{margin-top:16px;white-space:pre-wrap}
+</style>
+<h1>Scheduswarm Dispatcher</h1>
+<label><input id="enabled" type="checkbox" style="width:auto"> Enabled</label>
+<label>GitHub token (optional for public repositories; stored only in chrome.storage.local)</label>
+<input id="token" type="password" autocomplete="off">
+<div class="row">
+<div><label>Global concurrent chat launches</label><input id="global" type="number" min="1" value="2"></div>
+<div><label>Poll minutes</label><input id="poll" type="number" min="1" value="1"></div>
+</div>
+<label>Repositories JSON</label>
+<textarea id="repos" spellcheck="false">[]</textarea>
+<h2>ChatGPT UI adapter</h2>
+<p>Selectors are local configuration because ChatGPT UI structure can change. Automatic dispatch fails closed if these controls cannot be verified.</p>
+<label>Model menu selector</label><input id="modelSel" placeholder="CSS selector for current model control">
+<label>Effort menu selector</label><input id="effortSel" placeholder="CSS selector for current effort control">
+<label>Composer selector</label><input id="composerSel" value="#prompt-textarea">
+<label>Send selector</label><input id="sendSel" value="button[data-testid='send-button']">
+<label>Submitted marker selector</label><input id="submittedSel" value="button[data-testid='stop-button']">
+<button id="save">Save</button><button id="pollNow">Poll now</button>
+<div id="status" class="status"></div>
+<script src="options.js"></script>
