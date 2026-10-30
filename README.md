@@ -1,54 +1,57 @@
-# Scheduswarm
+# Scheduswarm v2
 
-> **Operational limitation confirmed 30 October 2026:** ChatGPT scheduled-task runs cannot use Automations `create` to spawn a successor (`Automation creation is unavailable during an automation run.`). On this task runner, one-shot work and repository handoffs function, but **automatic one-shot self-chaining does not**. An external coordinator or a normal chat must create each successor. See [edge cases](docs/EDGE_CASES.md#chatgpt-task-execution-cannot-create-a-new-automation-observed-30-oct-2026).
+Scheduswarm is a repository-backed dispatcher protocol for launching bounded agent work in **new ChatGPT chats** without relying on scheduled tasks to create scheduled successors.
 
-Scheduswarm is a repository-coordinated pattern for running bounded, parallel, self-handing-off one-shot ChatGPT scheduled tasks across software/research projects.
+The original scheduled-successor design is retired. Its exact final state is preserved on branch [`history/v1-scheduled-successors`](https://github.com/techrote/scheduswarm/tree/history/v1-scheduled-successors) and summarized in [v1 history](docs/history/V1_SCHEDULED_SUCCESSORS.md).
 
-It replaces long-lived “repeat the same prompt every hour” loops with **state-driven successor tasks**:
+## Core idea
 
-1. audit the live project state;
-2. select one highest-value dependency-ready objective;
-3. reserve a non-overlapping lane/write set;
-4. execute and qualify bounded work;
-5. publish a durable repository checkpoint;
-6. either stop, wait on a real dependency, or create exactly one successor for that lane;
-7. create additional one-shot lanes only when work is genuinely independent and the project policy permits it.
+A worker finishes by publishing a **next-prompt task envelope** to a dedicated repository queue branch:
 
-Scheduswarm is a **coordination method**, not an authority override. Project-local AGENTS/RAG/protocol/release/scientific rules remain authoritative.
+```text
+scheduswarm/queue
+└── .scheduswarm/
+    ├── tasks/          immutable Markdown task envelopes
+    ├── claims/         atomic dispatcher claims
+    ├── receipts/       dispatch outcome receipts
+    ├── completions/    agent completion/handoff records
+    └── recoveries/     explicit stale-claim recovery records
+```
 
-## Core documents
+A Chrome dispatcher watches the queue branch, validates the project policy and task envelope, acquires a repository-visible claim, opens a new ChatGPT chat, verifies the requested model/effort, inserts the prompt, and submits it. The next worker reads live repository state and eventually writes its own successor envelope.
 
-- [Operating model](docs/OPERATING_MODEL.md) — lane lifecycle, successor rules, limits and integration ownership.
-- [Edge cases](docs/EDGE_CASES.md) — collision, stale state, blocked work, automation failure, CI and evidence hazards.
-- [Project policy template](templates/SCHEDUSWARM.md) — copy/adapt into each participating repository.
-- [One-shot task contract](templates/ONE_SHOT_TASK_PROMPT.md) — reusable successor prompt structure.
-- [Project adoption registry](PROJECTS.md) — participating repositories and activation state.
+**The repository is the durable queue and coordination authority. The browser extension is only a dispatcher.**
 
-## Two different limits
+## Normative documents
 
-Scheduswarm deliberately separates:
+- [Architecture](docs/ARCHITECTURE.md)
+- [Task lifecycle](docs/TASK_LIFECYCLE.md)
+- [Dispatcher protocol](docs/DISPATCHER_PROTOCOL.md)
+- [Concurrency and lane admission](docs/CONCURRENCY.md)
+- [Failure recovery](docs/FAILURE_RECOVERY.md)
+- [Edge cases](docs/EDGE_CASES.md)
+- [Project policy template](templates/SCHEDUSWARM.md)
+- [Task envelope template](templates/task.md)
+- [Schemas](schemas/)
+- [Chrome dispatcher](dispatcher/chrome-extension/README.md)
+- [Project adoption registry](PROJECTS.md)
 
-- **maximum active lanes** — the maximum number of logical workstreams/successor chains that may be alive for one project, whether currently executing, waiting on CI, or awaiting their next one-shot run;
-- **project concurrency budget** — the maximum number of those lanes allowed to execute or be intentionally launched into the same coordination window at once.
+## Default limits
 
-Example: `max_active_lanes: 3`, `project_concurrency_budget: 2` means lanes A/B/C may all exist, but at most two should run concurrently. The third is staggered or waits.
+```yaml
+max_active_lanes: 3
+project_concurrency_budget: 2
+successors_per_lane: 1
+integration_writes_parallel: false
+queue_branch: scheduswarm/queue
+```
 
-The first limit controls **coordination complexity**. The second controls **simultaneous race/resource pressure**.
+**Maximum active lanes** limits how many logical workstreams/chains may remain alive, including waiting work. **Project concurrency budget** limits how many may intentionally execute at once.
 
-## Default policy
+## Non-authority
 
-Unless a project-local `SCHEDUSWARM.md` overrides it:
+Scheduswarm cannot override project-local scientific, security, release, merge, training, evidence, manual-qualification, or ownership gates. A generated successor prompt is a proposal for the next worker, not authorization to cross a gated boundary.
 
-- `max_active_lanes: 3`
-- `project_concurrency_budget: 2`
-- one serialized integration owner
-- one successor per lane
-- no automatic widening after repeated no-progress runs
-- no resurrection of paused projects merely because capacity exists
-- no training, merge, release, publication, held-out access or other gated action solely because a predecessor task suggested it
+## v2 status
 
-## Authority
-
-A participating repository should contain its own `SCHEDUSWARM.md` with project-specific limits, gate references, ownership rules and lane classes. Live ownership should be recorded append-only in issues/PRs/comments rather than by having parallel workers race on one mutable “current-state” file.
-
-Scheduswarm documents reusable technique; it does not replace project-local authority.
+The repository protocol and Chrome dispatcher are intentionally fail-closed. Automatic submission is supported only when the UI adapter can verify the requested model, effort, prompt insertion, and new-chat state. Otherwise it refuses or leaves a confirmation-mode draft.
