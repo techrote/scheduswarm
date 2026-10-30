@@ -20,6 +20,7 @@ Scheduswarm is a **coordination method**, not an authority override. Project-loc
 - [Edge cases](docs/EDGE_CASES.md) — collision, stale state, blocked work, automation failure, CI and evidence hazards.
 - [Project policy template](templates/SCHEDUSWARM.md) — copy/adapt into each participating repository.
 - [One-shot task contract](templates/ONE_SHOT_TASK_PROMPT.md) — reusable successor prompt structure.
+- [Project adoption registry](PROJECTS.md) — participating repositories and activation state.
 
 ## Two different limits
 
