@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/techrote/scheduswarm/schemas/receipt.schema.json",
+  "title": "Scheduswarm v2 dispatch receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "task_id",
+    "attempt",
+    "state",
+    "dispatcher_id",
+    "dispatcher_version",
+    "recorded_at",
+    "claim_path",
+    "prompt_sha256"
+  ],
+  "properties": {
+    "schema": {
+      "const": "scheduswarm/receipt-v2"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "state": {
+      "enum": [
+        "submitted",
+        "failed"
+      ]
+    },
+    "dispatcher_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dispatcher_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "claim_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "prompt_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "chat_url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri"
+    },
+    "requested_model_label": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "verified_model_label": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "requested_effort_label": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "verified_effort_label": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "failure_stage": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "error": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "submitted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "chat_url",
+          "verified_model_label",
+          "verified_effort_label"
+        ]
+      }
+    }
+  ]
+}
