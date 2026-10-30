@@ -1,5 +1,7 @@
 # Scheduswarm
 
+> **Operational limitation confirmed 30 October 2026:** ChatGPT scheduled-task runs cannot use Automations `create` to spawn a successor (`Automation creation is unavailable during an automation run.`). On this task runner, one-shot work and repository handoffs function, but **automatic one-shot self-chaining does not**. An external coordinator or a normal chat must create each successor. See [edge cases](docs/EDGE_CASES.md#chatgpt-task-execution-cannot-create-a-new-automation-observed-30-oct-2026).
+
 Scheduswarm is a repository-coordinated pattern for running bounded, parallel, self-handing-off one-shot ChatGPT scheduled tasks across software/research projects.
 
 It replaces long-lived “repeat the same prompt every hour” loops with **state-driven successor tasks**:
