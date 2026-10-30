@@ -35,9 +35,24 @@ function setPrompt(el,prompt) {
 }
 function promptValue(el){return (el instanceof HTMLTextAreaElement||el instanceof HTMLInputElement)?el.value:el.textContent;}
 
+async function verifySubmission(beforeUrl,prompt,ui) {
+  const deadline=Date.now()+(ui.submitVerifyTimeoutMs||12000);
+  while(Date.now()<deadline){
+    await sleep(250);
+    const changedUrl=location.href!==beforeUrl && /\/c\//.test(location.pathname);
+    const marker=ui.submittedSelector?[...document.querySelectorAll(ui.submittedSelector)].some(visible):false;
+    let promptGone=false;
+    try{promptGone=promptValue(one(ui.composerSelector))!==prompt;}catch{promptGone=true;}
+    if(changedUrl||marker||promptGone) return true;
+  }
+  return false;
+}
+
 async function dispatchTask(payload) {
   const {task,prompt,ui,dispatchToken}=payload;
   if (location.origin!=="https://chatgpt.com") throw new Error("UI_REFUSED: wrong origin");
+  if (/\/c\//.test(location.pathname)) throw new Error("UI_REFUSED: existing chat detected; new chat required");
+
   await chooseAndVerify(ui.modelMenuSelector,task.chatgpt.model_label,"model");
   await chooseAndVerify(ui.effortMenuSelector,task.chatgpt.effort_label,"effort");
   const composer=one(ui.composerSelector); setPrompt(composer,prompt); await sleep(150);
@@ -46,19 +61,21 @@ async function dispatchTask(payload) {
 
   if (task.chatgpt.dispatch_mode==="confirm") {
     send.addEventListener("click",()=>{
-      setTimeout(()=>chrome.runtime.sendMessage({type:"scheduswarm.confirmedSubmit",dispatchToken,chatUrl:location.href}),800);
+      const before=location.href;
+      verifySubmission(before,prompt,ui).then(ok=>{
+        chrome.runtime.sendMessage({
+          type: ok ? "scheduswarm.confirmedSubmit" : "scheduswarm.confirmAmbiguous",
+          dispatchToken,
+          chatUrl:location.href
+        });
+      });
     },{once:true});
     return {state:"prepared",chatUrl:location.href,verifiedModel:task.chatgpt.model_label,verifiedEffort:task.chatgpt.effort_label};
   }
 
   const before=location.href; send.click();
-  const deadline=Date.now()+(ui.submitVerifyTimeoutMs||12000);
-  while(Date.now()<deadline){
-    await sleep(250);
-    const changedUrl=location.href!==before && /\/c\//.test(location.pathname);
-    const marker=ui.submittedSelector?[...document.querySelectorAll(ui.submittedSelector)].some(visible):false;
-    let promptGone=false; try{promptGone=promptValue(one(ui.composerSelector))!==prompt;}catch{promptGone=true;}
-    if(changedUrl||marker||promptGone) return {state:"submitted",chatUrl:location.href,verifiedModel:task.chatgpt.model_label,verifiedEffort:task.chatgpt.effort_label};
+  if (await verifySubmission(before,prompt,ui)) {
+    return {state:"submitted",chatUrl:location.href,verifiedModel:task.chatgpt.model_label,verifiedEffort:task.chatgpt.effort_label};
   }
   return {state:"ambiguous",chatUrl:location.href,verifiedModel:task.chatgpt.model_label,verifiedEffort:task.chatgpt.effort_label,error:"submit clicked but submission could not be verified"};
 }
