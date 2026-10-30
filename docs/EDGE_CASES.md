@@ -20,6 +20,23 @@ Do not let multiple lanes concurrently edit authoritative registries, protocol f
 
 A lane waiting only for CI/review should not spend hourly executions rediscovering the same pending state. Prefer a later one-shot check, a condition watch if available, or stop until manually restarted.
 
+## ChatGPT task execution cannot create a new automation (observed 30 Oct 2026)
+
+**Verified production limitation:** during the first scheduled RAD-PROOF Scheduswarm execution, the connected Automations `create` action returned exactly `Automation creation is unavailable during an automation run.` The task had finished and merged independent proof-critical research, but **could not create its next one-shot successor**. This is a hard continuation blocker for this scheduling surface, not a lack of dependency-ready project work.
+
+Do not use language implying autonomous one-shot *self*-handoff is operational until creation from within a scheduled task is independently verified. Existing one-shot tasks may run and publish repository checkpoints but **will stop after that execution**. Manual creation from a regular user chat or a separately authorized supported coordinator would be necessary to continue; that is not equivalent to automatic self-scheduling.
+
+Required behavior on this failure:
+- keep and publish the exact checkpoint (commits, PR, CI, proof gates, next bounded task);
+- record the failed successor-creation attempt verbatim in the project coordination issue;
+- leave the project lane in `stopped-awaiting-scheduling-capability`, not `scheduled`;
+- notify the user of this limitation; never invent a successor ID, recurrence or success;
+- do not bypass the platform restriction with a recursive notification or an unrelated tool.
+
+**Proof of occurrence:** radiCADSAC [MC-038 issue #100](https://github.com/techrote/radiCADSAC/issues/100) / [Scheduswarm ledger #324](https://github.com/techrote/radiCADSAC/issues/324), source-qualified [PR #326](https://github.com/techrote/radiCADSAC/pull/326) merged on 30 October 2026.
+
+The generic architectural model remains reusable for a coordinator capable of scheduling successors, but must not be advertised as operational on this task runner until the host restriction changes.
+
 ## Automation creation fails
 
 A task must report that continuity was **not established**. Never claim a successor exists unless task creation returned success and an ID.
